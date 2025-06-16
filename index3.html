@@ -41,6 +41,9 @@
 
   <h2>カスタム地図ビューア（保存機能つき）</h2>
 
+  <button id="togglePanel" onclick="togglePanel()">🔽 閉じる</button>
+
+<div id="controlPanel">
   <div>
     <input type="file" accept="image/*" onchange="loadImage(event)" />
   </div>
@@ -53,7 +56,7 @@
   </div>
 
   <button onclick="startTracking()">📍 現在地を追跡</button>
-
+</div>
   <div id="map"></div>
   <div id="status"></div>
 
