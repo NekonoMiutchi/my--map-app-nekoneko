@@ -166,11 +166,21 @@
       );
     }
 
-    function stopTracking() {
+function stopTracking() {
   if (watchId !== null) {
     navigator.geolocation.clearWatch(watchId);
     watchId = null;
     document.getElementById('status').innerText = "🛑 追跡を停止しました。";
+
+    // ピンを削除
+    if (currentMarker) {
+      currentMarker.remove();
+      currentMarker = null;
+    }
+
+    // 保存された緯度経度も削除（任意）
+    localStorage.removeItem("lastLat");
+    localStorage.removeItem("lastLng");
   }
 }
 
