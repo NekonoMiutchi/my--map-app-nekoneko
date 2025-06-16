@@ -104,25 +104,47 @@
       map.appendChild(marker);
     }
 
-    function locateUser() {
-      if (!navigator.geolocation) {
-        document.getElementById('status').innerText = "⚠️ この端末では位置情報が利用できません。";
-        return;
-      }
-      document.getElementById('status').innerText = "📡 現在地を取得中...";
+let currentMarker = null;
 
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          addMarker(lat, lng, 'blue');
-          document.getElementById('status').innerText = `✅ 現在地: 緯度 ${lat.toFixed(5)}, 経度 ${lng.toFixed(5)}`;
-        },
-        (err) => {
-          document.getElementById('status').innerText = `❌ 取得失敗: ${err.message}`;
-        }
-      );
+function locateUser() {
+  if (!navigator.geolocation) {
+    document.getElementById('status').innerText = "⚠️ この端末では位置情報が利用できません。";
+    return;
+  }
+
+  document.getElementById('status').innerText = "📡 現在地を追跡中...";
+
+  navigator.geolocation.watchPosition(
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      // 前のマーカーを削除
+      if (currentMarker) currentMarker.remove();
+
+      // 新しいマーカーを表示
+      const { x, y } = latLngToPixel(lat, lng);
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.style.background = 'blue';
+      marker.style.left = `${x}px`;
+      marker.style.top = `${y}px`;
+      map.appendChild(marker);
+      currentMarker = marker;
+
+      document.getElementById('status').innerText =
+        `📍 緯度 ${lat.toFixed(5)}, 経度 ${lng.toFixed(5)}（追跡中）`;
+    },
+    (err) => {
+      document.getElementById('status').innerText = `❌ 取得失敗: ${err.message}`;
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 1000,
+      timeout: 10000
     }
+  );
+}
   </script>
 
 </body>
