@@ -56,6 +56,7 @@
   </div>
 
   <button onclick="startTracking()">📍 現在地を追跡</button>
+  <button onclick="stopTracking()">⏹️ 追跡を停止</button>
 </div>
   <div id="map"></div>
   <div id="status"></div>
@@ -146,7 +147,7 @@
 
       document.getElementById('status').innerText = "📡 現在地を追跡中...";
 
-      navigator.geolocation.watchPosition(
+      watchId = navigator.geolocation.watchPosition(
         (pos) => {
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
@@ -164,6 +165,14 @@
         }
       );
     }
+
+    function stopTracking() {
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+    document.getElementById('status').innerText = "🛑 追跡を停止しました。";
+  }
+}
 
     // 設定復元
     window.addEventListener("DOMContentLoaded", () => {
