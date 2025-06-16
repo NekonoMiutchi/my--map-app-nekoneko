@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>地図にピンを重ねる</title>
+  <style>
+    #mapContainer {
+      position: relative;
+      display: inline-block;
+    }
+    #mapImage {
+      max-width: 100%;
+    }
+    .pin {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .label {
+      position: absolute;
+      color: black;
+      font-size: 12px;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+  <h2>地図にピンを表示</h2>
+  <input type="file" accept="image/*" id="upload" />
+  <div id="mapContainer">
+    <img id="mapImage" src="" />
+  </div>
+  <div>
+    <p>緯度: <input type="number" id="lat" step="0.0001" /></p>
+    <p>経度: <input type="number" id="lng" step="0.0001" /></p>
+    <p>ラベル: <input type="text" id="labelText" /></p>
+    <button onclick="addPin()">ピンを追加</button>
+  </div>
+  <div>
+    <button onclick="useCurrentLocation()">現在地を使う</button>
+  </div>
+  <script>
+    let imageBounds = {
+      top: 45.0,
+      bottom: 30.0,
+      left: 130.0,
+      right: 145.0
+    };
+
+    const img = document.getElementById("mapImage");
+    const container = document.getElementById("mapContainer");
+
+    document.getElementById("upload").addEventListener("change", function(e) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function addPin() {
+      const lat = parseFloat(document.getElementById("lat").value);
+      const lng = parseFloat(document.getElementById("lng").value);
+      const labelText = document.getElementById("labelText").value;
+
+      const rect = img.getBoundingClientRect();
+      const width = img.width;
+      const height = img.height;
+
+      const x = ((lng - imageBounds.left) / (imageBounds.right - imageBounds.left)) * width;
+      const y = ((imageBounds.top - lat) / (imageBounds.top - imageBounds.bottom)) * height;
+
+      const pin = document.createElement("div");
+      pin.className = "pin";
+      pin.style.left = `${x}px`;
+      pin.style.top = `${y}px`;
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.innerText = labelText;
+      label.style.left = `${x + 10}px`;
+      label.style.top = `${y}px`;
+
+      container.appendChild(pin);
+      container.appendChild(label);
+    }
+
+function useCurrentLocation() {
+  if (!navigator.geolocation) {
+    alert("位置情報はこの端末で使用できません。");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      document.getElementById("lat").value = lat.toFixed(6);
+      document.getElementById("lng").value = lng.toFixed(6);
+    },
+    (error) => {
+      console.error("位置情報エラー:", error);
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          alert("ユーザーが位置情報の取得を拒否しました。");
+          break;
+        case error.POSITION_UNAVAILABLE:
+          alert("位置情報が取得できません（端末のGPSが無効など）。");
+          break;
+        case error.TIMEOUT:
+          alert("位置情報の取得がタイムアウトしました。");
+          break;
+        default:
+          alert("不明なエラーが発生しました。");
+          break;
+      }
+    }
+  );
+}
+  </script>
+</body>
+</html>
