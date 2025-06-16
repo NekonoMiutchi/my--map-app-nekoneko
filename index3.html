@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>地図ビューア（保存つき）</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 1rem;
+      text-align: center;
+    }
+    #map {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 1rem auto;
+      background-color: #eee;
+      background-size: cover;
+      background-position: center;
+      aspect-ratio: 4 / 3;
+      border: 1px solid #ccc;
+    }
+    .marker {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: red;
+      border-radius: 50%;
+      border: 2px solid white;
+      transform: translate(-50%, -50%);
+    }
+    input, button {
+      margin: 0.5rem;
+      padding: 0.4rem;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>カスタム地図ビューア（保存機能つき）</h2>
+
+  <div>
+    <input type="file" accept="image/*" onchange="loadImage(event)" />
+  </div>
+
+  <div>
+    左上 緯度：<input type="number" id="lat1" step="0.00001" value="35.70000" />
+    経度：<input type="number" id="lng1" step="0.00001" value="139.70000" /><br/>
+    右下 緯度：<input type="number" id="lat2" step="0.00001" value="35.68000" />
+    経度：<input type="number" id="lng2" step="0.00001" value="139.72000" />
+  </div>
+
+  <button onclick="startTracking()">📍 現在地を追跡</button>
+
+  <div id="map"></div>
+  <div id="status"></div>
+
+  <script>
+    const map = document.getElementById('map');
+    let bbox = {
+      topLeft: { lat: 35.70000, lng: 139.70000 },
+      bottomRight: { lat: 35.68000, lng: 139.72000 }
+    };
+    let currentMarker = null;
+
+    // 画像読み込み
+    function loadImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        map.style.backgroundImage = `url('${dataUrl}')`;
+        localStorage.setItem("mapImage", dataUrl);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // 緯度経度更新＋保存
+    function updateBBox() {
+      const lat1 = document.getElementById('lat1').value;
+      const lng1 = document.getElementById('lng1').value;
+      const lat2 = document.getElementById('lat2').value;
+      const lng2 = document.getElementById('lng2').value;
+
+      bbox.topLeft.lat = parseFloat(lat1);
+      bbox.topLeft.lng = parseFloat(lng1);
+      bbox.bottomRight.lat = parseFloat(lat2);
+      bbox.bottomRight.lng = parseFloat(lng2);
+
+      localStorage.setItem("lat1", lat1);
+      localStorage.setItem("lng1", lng1);
+      localStorage.setItem("lat2", lat2);
+      localStorage.setItem("lng2", lng2);
+    }
+
+    // 緯度経度 → ピクセル座標
+    function latLngToPixel(lat, lng) {
+      updateBBox();
+      const rect = map.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+
+      const x = ((lng - bbox.topLeft.lng) / (bbox.bottomRight.lng - bbox.topLeft.lng)) * width;
+      const y = ((bbox.topLeft.lat - lat) / (bbox.topLeft.lat - bbox.bottomRight.lat)) * height;
+      return { x, y };
+    }
+
+    // ピン表示
+    function addMarker(lat, lng, color = 'blue') {
+      const { x, y } = latLngToPixel(lat, lng);
+      if (currentMarker) currentMarker.remove();
+
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.style.background = color;
+      marker.style.left = `${x}px`;
+      marker.style.top = `${y}px`;
+      map.appendChild(marker);
+      currentMarker = marker;
+
+      localStorage.setItem("lastLat", lat);
+      localStorage.setItem("lastLng", lng);
+    }
+
+    // 現在地追跡
+    function startTracking() {
+      if (!navigator.geolocation) {
+        document.getElementById('status').innerText = "⚠️ この端末では位置情報が利用できません。";
+        return;
+      }
+
+      document.getElementById('status').innerText = "📡 現在地を追跡中...";
+
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          addMarker(lat, lng, 'blue');
+          document.getElementById('status').innerText =
+            `📍 緯度 ${lat.toFixed(5)}, 経度 ${lng.toFixed(5)}（追跡中）`;
+        },
+        (err) => {
+          document.getElementById('status').innerText = `❌ 取得失敗: ${err.message}`;
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 1000,
+          timeout: 10000
+        }
+      );
+    }
+
+    // 設定復元
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedImage = localStorage.getItem("mapImage");
+      if (savedImage) {
+        map.style.backgroundImage = `url('${savedImage}')`;
+      }
+
+      const lat1 = localStorage.getItem("lat1");
+      const lng1 = localStorage.getItem("lng1");
+      const lat2 = localStorage.getItem("lat2");
+      const lng2 = localStorage.getItem("lng2");
+
+      if (lat1 && lng1 && lat2 && lng2) {
+        document.getElementById("lat1").value = lat1;
+        document.getElementById("lng1").value = lng1;
+        document.getElementById("lat2").value = lat2;
+        document.getElementById("lng2").value = lng2;
+
+        bbox.topLeft.lat = parseFloat(lat1);
+        bbox.topLeft.lng = parseFloat(lng1);
+        bbox.bottomRight.lat = parseFloat(lat2);
+        bbox.bottomRight.lng = parseFloat(lng2);
+      }
+
+      const lastLat = localStorage.getItem("lastLat");
+      const lastLng = localStorage.getItem("lastLng");
+      if (lastLat && lastLng) {
+        addMarker(parseFloat(lastLat), parseFloat(lastLng));
+      }
+    });
+  </script>
+
+</body>
+</html>
