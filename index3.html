@@ -129,6 +129,14 @@
       localStorage.setItem("lastLng", lng);
     }
 
+    function togglePanel() {
+  const panel = document.getElementById("controlPanel");
+  const button = document.getElementById("togglePanel");
+  const isHidden = panel.style.display === "none";
+  panel.style.display = isHidden ? "block" : "none";
+  button.textContent = isHidden ? "🔽 閉じる" : "▶ 開く";
+}
+
     // 現在地追跡
     function startTracking() {
       if (!navigator.geolocation) {
