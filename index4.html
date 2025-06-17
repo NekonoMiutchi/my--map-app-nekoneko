@@ -33,6 +33,13 @@
             transform: translate(-50%, -50%);
         }
 
+        /* 既存 .marker に影響しないように */
+        .marker.track {
+            width: 6px;
+            height: 6px;
+            background: rgba(0,0,255,0.3);
+        }
+
         input, button {
             margin: 0.5rem;
             padding: 0.4rem;
@@ -131,10 +138,24 @@
             map.appendChild(marker);
             currentMarker = marker;
 
+            // 軌跡オンなら記録
+            if (isTrackingPath) {
+                const dot = document.createElement('div');
+                dot.className = 'marker track';
+                dot.style.background = 'rgba(0, 0, 255, 0.4)';
+                dot.style.left = `${x}px`;
+                dot.style.top = `${y}px`;
+                dot.style.width = '8px';
+                dot.style.height = '8px';
+                map.appendChild(dot);
+                trackPoints.push(dot);
+            }
+
             localStorage.setItem("lastLat", lat);
             localStorage.setItem("lastLng", lng);
         }
 
+        //
         function togglePanel() {
             const panel = document.getElementById("controlPanel");
             const button = document.getElementById("togglePanel");
