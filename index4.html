@@ -192,6 +192,18 @@
             );
         }
 
+        function toggleTrack() {
+            isTrackingPath = !isTrackingPath;
+            const btn = document.querySelector('button[onclick="toggleTrack()"]');
+            btn.textContent = isTrackingPath ? "🧭 軌跡: オン" : "🧭 軌跡: オフ";
+
+            if (!isTrackingPath) {
+                // 軌跡を消す
+                trackPoints.forEach(p => p.remove());
+                trackPoints = [];
+            }
+        }
+
         function stopTracking() {
             if (watchId !== null) {
                 navigator.geolocation.clearWatch(watchId);
@@ -242,18 +254,6 @@
 
             let isTrackingPath = false;
             let trackPoints = [];
-
-            function toggleTrack() {
-                isTrackingPath = !isTrackingPath;
-                const btn = document.querySelector('button[onclick="toggleTrack()"]');
-                btn.textContent = isTrackingPath ? "🧭 軌跡: オン" : "🧭 軌跡: オフ";
-
-                if (!isTrackingPath) {
-                    // 軌跡を消す
-                    trackPoints.forEach(p => p.remove());
-                    trackPoints = [];
-                }
-            }
 
         });
     </script>
