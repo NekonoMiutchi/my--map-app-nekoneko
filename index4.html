@@ -192,6 +192,9 @@
             );
         }
 
+        let isTrackingPath = false;
+        let trackPoints = [];
+
         function toggleTrack() {
             isTrackingPath = !isTrackingPath;
             const btn = document.querySelector('button[onclick="toggleTrack()"]');
@@ -251,9 +254,6 @@
             if (lastLat && lastLng) {
                 addMarker(parseFloat(lastLat), parseFloat(lastLng));
             }
-
-            let isTrackingPath = false;
-            let trackPoints = [];
 
         });
     </script>
