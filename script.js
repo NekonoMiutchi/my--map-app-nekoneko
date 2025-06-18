@@ -59,7 +59,7 @@ function addMarker(lat, lng, isPixel = false, color = 'blue', id = '') {
     const marker = document.createElement('div');
     let longPressTimer = null;
     marker.className = 'marker';
-    marker.id = id;
+    marker.id = isPixel ? id : "Target";
     marker.style.background = color;
     marker.style.left = `${!isPixel ? x : lat}px`;
     marker.style.top = `${!isPixel ? y : lng}px`;
@@ -91,7 +91,11 @@ function addMarker(lat, lng, isPixel = false, color = 'blue', id = '') {
         clearTimeout(longPressTimer); // 長押しじゃなかったらキャンセル
     });
     map.appendChild(marker);
-    currentMarker = marker;
+    if (!isPixel)
+    {
+        currentMarker = marker;
+    }
+
 
     // 軌跡オンなら記録
     if (isTrackingPath) {
