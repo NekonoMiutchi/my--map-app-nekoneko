@@ -201,8 +201,11 @@ document.getElementById("map").addEventListener("click", function (e) {
     if (!isAddPinMode || !mapImage) return;
 
     const rect = mapImage.getBoundingClientRect();
-    const x = e.clientX - rect.left + rect.left / 2.37;
-    const y = e.clientY - rect.top - 20;
+    //ブラウザ用補正
+    //const x = e.clientX - rect.left + rect.left / 2.37;
+    //const y = e.clientY - rect.top - 20;
+    const x = e.clientX - rect.left + rect.left;
+    const y = e.clientY - rect.top;
 
 
     const marker = document.createElement("div");
