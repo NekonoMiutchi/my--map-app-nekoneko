@@ -4,6 +4,8 @@ let bbox = {
     bottomRight: { lat: 35.68000, lng: 139.72000 }
 };
 let currentMarker = null;
+let isAddPinMode = false;
+
 
 // 画像読み込み
 function loadImage(event) {
@@ -50,22 +52,43 @@ function latLngToPixel(lat, lng) {
 }
 
 // ピン表示
-function addMarker(lat, lng, color = 'blue') {
-    const { x, y } = latLngToPixel(lat, lng);
-    if (currentMarker) currentMarker.remove();
+function addMarker(lat, lng, isPixel = false, color = 'blue', id = '') {
 
+    if (currentMarker && !isPixel) currentMarker.remove();
+    const { x, y } = latLngToPixel(lat, lng);
     const marker = document.createElement('div');
+    let longPressTimer = null;
     marker.className = 'marker';
+    marker.id = id;
     marker.style.background = color;
-    marker.style.left = `${x}px`;
-    marker.style.top = `${y}px`;
+    marker.style.left = `${!isPixel ? x : lat}px`;
+    marker.style.top = `${!isPixel ? y : lng}px`;
     marker.addEventListener("contextmenu", function (e) {
         e.preventDefault();
         if (confirm("このピンを削除しますか？")) {
+            const labelId = document.getElementById(marker.id);
             marker.remove();
-            if (labelDiv) labelDiv.remove();
+            if (labelId) labelId.remove();
             saveMarkers();
+            saveLabels();
         }
+    });
+    // 長押し検出（スマホ用）
+    marker.addEventListener("touchstart", (e) => {
+        e.stopPropagation();
+        longPressTimer = setTimeout(() => {
+            if (confirm("このピンを削除しますか？")) {
+                const labelId = document.getElementById(marker.id);
+                marker.remove();
+                if (labelId) labelId.remove();
+                saveMarkers();
+                saveLabels();
+            }
+        }, 600); // 600ミリ秒以上で長押しと判定
+    });
+    marker.addEventListener("touchend", () => {
+        e.stopPropagation();
+        clearTimeout(longPressTimer); // 長押しじゃなかったらキャンセル
     });
     map.appendChild(marker);
     currentMarker = marker;
@@ -82,9 +105,9 @@ function addMarker(lat, lng, color = 'blue') {
         map.appendChild(dot);
         trackPoints.push(dot);
     }
-
     localStorage.setItem("lastLat", lat);
     localStorage.setItem("lastLng", lng);
+
 }
 
 //
@@ -188,8 +211,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-let isAddPinMode = false;
-
 function toggleAddPin() {
     isAddPinMode = !isAddPinMode;
     const button = event.target;
@@ -203,38 +224,88 @@ document.getElementById("map").addEventListener("click", function (e) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-
     const marker = document.createElement("div");
     marker.className = "marker";
+    marker.id = `${x},${y}`;
     marker.style.left = `${x}px`;
     marker.style.top = `${y}px`;
+    marker.style.background = "red";
 
     const label = prompt("ラベル（任意）を入力してください:");
     if (label) {
-        const labelDiv = document.createElement("div");
-        labelDiv.className = "marker-label";
-        labelDiv.innerText = label;
-        labelDiv.style.left = `${x}px`;
-        labelDiv.style.top = `${y}px`;
-        document.getElementById("map").appendChild(labelDiv);
+        addLabel(x, y, label, marker.id);
+        saveLabels();
     }
-
     document.getElementById("map").appendChild(marker);
+    saveMarkers();
 });
 
 function saveMarkers() {
     const markers = [...document.querySelectorAll('.marker')].map(marker => ({
+
         x: parseFloat(marker.style.left),
         y: parseFloat(marker.style.top),
-        label: marker.dataset.label || ""
+        label: marker.style.background || "",
+        id: marker.id || ""
     }));
     localStorage.setItem("savedMarkers", JSON.stringify(markers));
-
 }
 
 function loadMarkers() {
     const saved = JSON.parse(localStorage.getItem("savedMarkers") || "[]");
-    saved.forEach(({ x, y, label }) => {
-        addMarker(x, y, label);
+    saved.forEach(({ x, y, label, id }) => {
+        if (x >= 0 && y >= 0) {
+            addMarker(x, y, true, label, id);
+        }
     });
 }
+
+function addLabel(lat, lng, label, id) {
+    const labelDiv = document.createElement("div");
+    labelDiv.className = "marker-label";
+    labelDiv.innerText = label;
+    labelDiv.style.left = `${lat}px`;
+    labelDiv.style.top = `${lng}px`;
+    labelDiv.id = id;
+    document.getElementById("map").appendChild(labelDiv);
+}
+
+function saveLabels() {
+    const labels = [...document.querySelectorAll('.marker-label')].map(label1 => ({
+
+        x: parseFloat(label1.style.left),
+        y: parseFloat(label1.style.top),
+        innerText: label1.innerText || "",
+        id: label1.id || ""
+    }));
+    localStorage.setItem("savedLabels", JSON.stringify(labels));
+}
+
+function loadLabels() {
+    const saved = JSON.parse(localStorage.getItem("savedLabels") || "[]");
+    saved.forEach(({ x, y, innerText, id }) => {
+        if (x >= 0 && y >= 0) {
+            addLabel(x, y, innerText, id);
+        }
+    });
+}
+
+// 地図画像が完全に読み込まれてからピンを復元
+map.onload = function () {
+    loadMarkers();
+    loadLabels();
+};
+
+window.addEventListener("DOMContentLoaded", () => {
+    const map = document.getElementById("mapImage");
+
+    map.onload = function () {
+        console.log("画像ロード完了、ピン復元実行");
+        loadLabels();
+        loadMarkers();
+    };
+
+    if (map.complete) {
+        map.onload(); // キャッシュ時の対応
+    }
+});
