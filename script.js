@@ -198,13 +198,9 @@ function toggleAddPin() {
 
 // 地図画像クリック時にピンを追加
 document.getElementById("map").addEventListener("click", function (e) {
-    if (!isAddPinMode || !mapImage) return;
-
-    const rect = mapImage.getBoundingClientRect();
-    //ブラウザ用補正
-    //const x = e.clientX - rect.left + rect.left / 2.37;
-    //const y = e.clientY - rect.top - 20;
-    const x = e.clientX - rect.left + rect.left;
+    if (!isAddPinMode || !map) return;
+    const rect = map.getBoundingClientRect();
+    const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
 
