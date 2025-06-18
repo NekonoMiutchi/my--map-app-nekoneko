@@ -59,10 +59,18 @@ function addMarker(lat, lng, isPixel = false, color = 'blue', id = '') {
     const marker = document.createElement('div');
     let longPressTimer = null;
     marker.className = 'marker';
-    marker.id = isPixel ? id : "Target";
+    marker.id = id;
     marker.style.background = color;
-    marker.style.left = `${!isPixel ? x : lat}px`;
-    marker.style.top = `${!isPixel ? y : lng}px`;
+    if (!isPixel) {
+        marker.style.left = `${x}px`;
+        marker.style.top = `${y}px`;
+    }
+    else
+    {
+        marker.style.left = `${lat}px`;
+        marker.style.top = `${lng}px`;
+    }
+
     marker.addEventListener("contextmenu", function (e) {
         e.preventDefault();
         if (confirm("このピンを削除しますか？")) {
@@ -136,7 +144,7 @@ function startTracking() {
         (pos) => {
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
-            addMarker(lat, lng, 'blue');
+            addMarker(lat, lng, false, 'blue' , 'target');
             document.getElementById('status').innerText =
                 `📍 緯度 ${lat.toFixed(5)}, 経度 ${lng.toFixed(5)}（追跡中）`;
         },
