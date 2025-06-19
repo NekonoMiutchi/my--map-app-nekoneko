@@ -18,21 +18,36 @@
 
 .marker {
     position: absolute;
-    width: 14px;
-    height: 14px;
-    background: red;
+    width: 20px;
+    height: 20px;
+    background: transparent;
     border-radius: 50%;
     border: 2px solid white;
     transform: translate(-50%, -50%);
+    display: flex;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 10;
+    /* ← 追加ポイント：タップ領域の拡大 */
+    pointer-events: auto;
+    touch-action: none;
 }
 
-/* 既存 .marker に影響しないように */
-.marker.track {
-    width: 6px;
-    height: 6px;
-    background: rgba(0,0,255,0.3);
-}
+    .marker::before {
+        content: "";
+        width: 14px;
+        height: 14px;
+        background: red;
+        border-radius: 50%;
+    }
+
+    /* 既存 .marker に影響しないように */
+    .marker.track {
+        width: 6px;
+        height: 6px;
+        background: rgba(0,0,255,0.3);
+    }
 
 .marker-label {
     position: absolute;
