@@ -65,8 +65,7 @@ function addMarker(lat, lng, isPixel = false, color = 'blue', id = '') {
         marker.style.left = `${x}px`;
         marker.style.top = `${y}px`;
     }
-    else
-    {
+    else {
         marker.style.left = `${lat}px`;
         marker.style.top = `${lng}px`;
     }
@@ -99,8 +98,7 @@ function addMarker(lat, lng, isPixel = false, color = 'blue', id = '') {
         clearTimeout(longPressTimer); // 長押しじゃなかったらキャンセル
     });
     map.appendChild(marker);
-    if (!isPixel)
-    {
+    if (!isPixel) {
         currentMarker = marker;
     }
 
@@ -144,7 +142,7 @@ function startTracking() {
         (pos) => {
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
-            addMarker(lat, lng, false, 'blue' , 'target');
+            addMarker(lat, lng, false, 'blue', 'target');
             document.getElementById('status').innerText =
                 `📍 緯度 ${lat.toFixed(5)}, 経度 ${lng.toFixed(5)}（追跡中）`;
         },
@@ -251,6 +249,15 @@ document.getElementById("map").addEventListener("click", function (e) {
     document.getElementById("map").appendChild(marker);
     saveMarkers();
 });
+
+function toggleResetPin() {
+    if (confirm("すべておピンを削除しますか？")) {
+        localStorage.removeItem("savedMarkers");
+        localStorage.removeItem("savedLabels");
+        // reloadメソッドによりページをリロード
+        window.location.reload();
+    }
+}
 
 function saveMarkers() {
     const markers = [...document.querySelectorAll('.marker')].map(marker => ({
