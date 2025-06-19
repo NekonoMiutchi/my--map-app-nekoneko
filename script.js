@@ -251,13 +251,22 @@ document.getElementById("map").addEventListener("click", function (e) {
 });
 
 function toggleResetPin() {
-    if (confirm("すべておピンを削除しますか？")) {
+    if (confirm("すべてのピンを削除しますか？")) {
         localStorage.removeItem("savedMarkers");
         localStorage.removeItem("savedLabels");
         // reloadメソッドによりページをリロード
         window.location.reload();
     }
 }
+
+document.getElementById("deleteAllBtn").addEventListener("click", () => {
+    if (confirm("本当にすべてのピンを削除しますか？")) {
+        document.querySelectorAll(".marker").forEach(m => m.remove());
+        localStorage.removeItem("savedMarkers");
+        document.querySelectorAll(".marker-label").forEach(m => m.remove());
+        localStorage.removeItem("savedLabels");
+    }
+});
 
 function saveMarkers() {
     const markers = [...document.querySelectorAll('.marker')].map(marker => ({
