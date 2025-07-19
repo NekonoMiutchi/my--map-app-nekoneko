@@ -337,3 +337,12 @@ window.addEventListener("DOMContentLoaded", () => {
         map.onload(); // キャッシュ時の対応
     }
 });
+
+//MAP系
+const container = document.getElementById("map-container");
+const zoomSlider = document.getElementById("zoom-slider");
+
+zoomSlider.addEventListener("input", () => {
+    const scale = parseFloat(zoomSlider.value);
+    container.style.transform = `scale(${scale})`;
+});

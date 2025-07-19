@@ -16,6 +16,24 @@
     border: 1px solid #ccc;
 }
 
+#map-wrapper {
+    position: relative;
+    overflow: auto;
+    width: 100%;
+    height: auto;
+}
+
+#map-container {
+    /*transform-origin: top left;  ← 左上基準に拡大*/ 
+    transition: transform 0.2s ease;
+    /*display: inline-block;  ← 中央寄せを防ぐ*/ 
+}
+
+#map-image {
+    display: block; /* 余計な空白を防ぐ */
+    max-width: none; /* 拡大に制限をつけない */
+}
+
 .marker {
     position: absolute;
     width: 20px;
@@ -63,4 +81,20 @@ input, button {
     margin: 0.5rem;
     padding: 0.4rem;
     font-size: 1rem;
+}
+
+#zoom-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    z-index: 9999;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
+}
+
+#zoom-slider {
+    width: 80%;
 }

@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>地図ピンアプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>カスタム地図ビューア（保存機能つき）</h2>
+
+    <button id="togglePanel" onclick="togglePanel()">🔽 閉じる</button>
+
+    <div id="controlPanel">
+        <div>
+            <input type="file" accept="image/*" onchange="loadImage(event)" />
+        </div>
+
+        <div>
+            左上 緯度：<input type="number" id="lat1" step="0.00001" value="35.70000" />
+            経度：<input type="number" id="lng1" step="0.00001" value="139.70000" /><br />
+            右下 緯度：<input type="number" id="lat2" step="0.00001" value="35.68000" />
+            経度：<input type="number" id="lng2" step="0.00001" value="139.72000" />
+        </div>
+
+        <button onclick="startTracking()">📍 現在地を追跡</button>
+        <button onclick="stopTracking()">⏹️ 追跡を停止</button>
+        <button onclick="toggleTrack()">🧭 軌跡: オフ</button>
+        <button onclick="toggleAddPin()">📍 ピン追加モード: オフ</button>
+        <button id="deleteAllBtn">🧹 ピン初期化</button>
+
+    </div>
+    <div id="map-wrapper">
+        <div id="map-container">
+            <img id="map-Image" />
+            <div id="map"></div>
+            <div id="status"></div>
+        </div>
+        <input type="range" id="zoom-slider" min="1" max="3" step="0.1" value="1">
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
