@@ -16,11 +16,19 @@
     border: 1px solid #ccc;
 }
 
-#map-wrapper {
+/*#map-wrapper {
     position: relative;
     overflow: auto;
     width: 100%;
     height: auto;
+}*/
+
+#map-wrapper {
+    width: 100%;
+    height: 80vh;
+    overflow: auto; /* ← ここがポイント */
+    position: relative;
+    border: 1px solid #ccc;
 }
 
 #map-container {

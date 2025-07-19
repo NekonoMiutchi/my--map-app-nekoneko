@@ -346,3 +346,38 @@ zoomSlider.addEventListener("input", () => {
     const scale = parseFloat(zoomSlider.value);
     container.style.transform = `scale(${scale})`;
 });
+
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let scrollStartX = 0;
+let scrollStartY = 0;
+
+const mapWrapper = document.getElementById("map-wrapper");
+
+mapWrapper.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    scrollStartX = mapWrapper.scrollLeft;
+    scrollStartY = mapWrapper.scrollTop;
+    mapWrapper.style.cursor = "grabbing";
+});
+
+mapWrapper.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartX;
+    const dy = e.clientY - dragStartY;
+    mapWrapper.scrollLeft = scrollStartX - dx;
+    mapWrapper.scrollTop = scrollStartY - dy;
+});
+
+mapWrapper.addEventListener("mouseup", () => {
+    isDragging = false;
+    mapWrapper.style.cursor = "default";
+});
+
+mapWrapper.addEventListener("mouseleave", () => {
+    isDragging = false;
+    mapWrapper.style.cursor = "default";
+});
