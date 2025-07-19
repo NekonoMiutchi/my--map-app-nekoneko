@@ -381,3 +381,53 @@ mapWrapper.addEventListener("mouseleave", () => {
     isDragging = false;
     mapWrapper.style.cursor = "default";
 });
+
+function updateCurrentLocationMarker(lat, lng) {
+    const pos = latLngToImageXY(lat, lng);
+
+    const marker = document.getElementById("current-location-marker");
+    if (!marker) {
+        const newMarker = document.createElement("div");
+        newMarker.id = "current-location-marker";
+        newMarker.style.position = "absolute";
+        newMarker.style.width = "10px";
+        newMarker.style.height = "10px";
+        newMarker.style.borderRadius = "50%";
+        newMarker.style.backgroundColor = "blue";
+        newMarker.style.zIndex = "10";
+        document.getElementById("map").appendChild(newMarker);
+    }
+
+    const markerElem = document.getElementById("current-location-marker");
+    markerElem.style.left = `${pos.x}px`;
+    markerElem.style.top = `${pos.y}px`;
+}
+document.getElementById("zoom-slider").addEventListener("input", function () {
+    currentZoom = parseFloat(this.value);
+    // 現在地の緯度経度を保持していれば再描画
+    if (lastKnownLat && lastKnownLng) {
+        updateCurrentLocationMarker(lastKnownLat, lastKnownLng);
+    }
+});
+
+function latLngToImageXY(lat, lng) {
+    const mapImage = document.getElementById("map-Image");
+    const rect = mapImage.getBoundingClientRect(); // 表示上のサイズ
+    const naturalWidth = mapImage.naturalWidth;
+    const naturalHeight = mapImage.naturalHeight;
+
+    const zoom = currentZoom; // 1.0, 1.5など
+    const displayedWidth = naturalWidth * zoom;
+    const displayedHeight = naturalHeight * zoom;
+
+    const lat1 = parseFloat(document.getElementById("lat1").value); // 左上
+    const lng1 = parseFloat(document.getElementById("lng1").value);
+    const lat2 = parseFloat(document.getElementById("lat2").value); // 右下
+    const lng2 = parseFloat(document.getElementById("lng2").value);
+
+    // 緯度はY方向に対応。北が上。小さいほど下へ。
+    const x = ((lng - lng1) / (lng2 - lng1)) * displayedWidth;
+    const y = ((lat1 - lat) / (lat1 - lat2)) * displayedHeight;
+
+    return { x, y };
+}
