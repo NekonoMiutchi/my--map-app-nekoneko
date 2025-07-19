@@ -24,9 +24,32 @@
 }
 
 #map-container {
-    /*transform-origin: top left;  ← 左上基準に拡大*/ 
+    /*transform-origin: top left;  ← 左上基準に拡大*/
     transition: transform 0.2s ease;
-    /*display: inline-block;  ← 中央寄せを防ぐ*/ 
+    /*display: inline-block;  ← 中央寄せを防ぐ*/
+    position: relative; /* 子要素の絶対配置を有効に */
+    /* （ズーム用の transform や overflow の指定があればそれも維持） */
+}
+
+/* 地図領域には干渉しないように */
+#map-container, #map-Image, #map {
+    pointer-events: auto;
+}
+
+#slider-wrapper {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999; /* 最前面に出るよう大きく */
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+#zoom-slider {
+    width: 180px;
 }
 
 #map-image {
@@ -93,8 +116,4 @@ input, button {
     text-align: center;
     z-index: 9999;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
-}
-
-#zoom-slider {
-    width: 80%;
 }
